@@ -32,23 +32,15 @@ const tmpl = `
 {{end}}{{end}}
 
 {{define "messages"}}{{range .}}
-{{- if .HasOneOfFields}}
-type Base{{.Name}} = {
-{{- range .NonOneOfFields}}
-  {{fieldName .Name}}?: {{tsType .}}
-{{- end}}
-}
-
-export type {{.Name}} = Base{{.Name}}
-{{range $groupId, $fields := .OneOfFieldsGroups}}  & OneOf<{ {{range $index, $field := $fields}}{{fieldName $field.Name}}: {{tsType $field}}{{if (lt (add $index 1) (len $fields))}}; {{end}}{{end}} }>
-{{end}}
-{{- else -}}
 export type {{.Name}} = {
 {{- range .Fields}}
-  {{fieldName .Name}}?: {{tsType .}}
+  {{- if .IsRequired }}
+	{{fieldName .Name}}: {{tsType .}}
+  {{- else }}
+	{{fieldName .Name}}?: {{tsType .}}
+  {{- end }}
 {{- end}}
 }
-{{end}}
 {{end}}{{end}}
 
 {{define "services"}}{{range .}}export class {{.Name}} {
@@ -448,6 +440,9 @@ func GetTemplate(r *registry.Registry) *template.Template {
 		"renderURL":    renderURL(r),
 		"buildInitReq": buildInitReq,
 		"fieldName":    fieldName(r),
+		"printType": func(v interface{}) string {
+			return fmt.Sprintf("%#v", v)
+		},
 	})
 
 	t = template.Must(t.Parse(tmpl))

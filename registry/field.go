@@ -1,9 +1,9 @@
 package registry
 
 import (
-	descriptorpb "github.com/golang/protobuf/protoc-gen-go/descriptor"
-
 	"github.com/grpc-ecosystem/protoc-gen-grpc-gateway-ts/data"
+	"google.golang.org/protobuf/types/descriptorpb"
+	"weavelab.xyz/schema-gen-go/shared/wschema"
 )
 
 // getFieldType generates an intermediate type and leave the rendering logic to choose what to render
@@ -60,6 +60,12 @@ func (r *Registry) analyseField(fileData *data.File, msgData *data.Message, pack
 		IsExternal:   isExternal,
 		IsOneOfField: f.OneofIndex != nil,
 		Message:      msgData,
+	}
+
+	if f.Options != nil {
+		if f.Options.ProtoReflect().Get(wschema.E_Required.TypeDescriptor()).Bool() {
+			fieldData.IsRequired = true
+		}
 	}
 
 	if f.Label != nil {

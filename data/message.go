@@ -74,6 +74,8 @@ type Field struct {
 	OneOfIndex int32
 	// IsRepeated indicates whether the field is a repeated field
 	IsRepeated bool
+	// IsRequired indicates whether the field has the required validation rule
+	IsRequired bool
 }
 
 // GetType returns some information of the type to aid the rendering

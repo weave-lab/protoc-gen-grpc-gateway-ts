@@ -6,10 +6,8 @@ import (
 
 	descriptorpb "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/grpc-ecosystem/protoc-gen-grpc-gateway-ts/data"
-	"github.com/grpc-ecosystem/protoc-gen-grpc-gateway-ts/options"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus" // nolint: depguard
-	"google.golang.org/protobuf/proto"
 )
 
 func (r *Registry) analyseFile(f *descriptorpb.FileDescriptorProto) (*data.File, error) {
@@ -20,9 +18,6 @@ func (r *Registry) analyseFile(f *descriptorpb.FileDescriptorProto) (*data.File,
 	parents := make([]string, 0)
 	fileData.Name = fileName
 	fileData.TSFileName = data.GetTSFileName(fileName)
-	if proto.HasExtension(f.Options, options.E_TsPackage) {
-		r.TSPackages[fileData.TSFileName] = proto.GetExtension(f.Options, options.E_TsPackage).(string)
-	}
 
 	// analyse enums
 	for _, enum := range f.EnumType {

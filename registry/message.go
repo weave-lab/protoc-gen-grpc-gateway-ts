@@ -1,9 +1,8 @@
 package registry
 
 import (
-	descriptorpb "github.com/golang/protobuf/protoc-gen-go/descriptor"
-
 	"github.com/grpc-ecosystem/protoc-gen-grpc-gateway-ts/data"
+	"google.golang.org/protobuf/types/descriptorpb"
 )
 
 func (r *Registry) analyseMessage(fileData *data.File, packageName, fileName string, parents []string, message *descriptorpb.DescriptorProto) {
