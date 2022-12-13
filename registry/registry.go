@@ -203,6 +203,7 @@ func (r *Registry) Analyse(req *plugin.CodeGeneratorRequest) (map[string]*data.F
 		if err != nil {
 			return nil, errors.Wrapf(err, "error analysing file %s", *f.Name)
 		}
+
 		data[f.GetName()] = fileData
 	}
 

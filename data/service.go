@@ -66,6 +66,8 @@ type Method struct {
 	HTTPMethod string
 	// HTTPBody is the path for request body in the body's payload
 	HTTPRequestBody *string
+
+	APIGatewayPathPrefix string
 }
 
 // MethodArgument stores the type information about method argument

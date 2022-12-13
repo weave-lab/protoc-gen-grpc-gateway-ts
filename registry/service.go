@@ -73,7 +73,7 @@ func (r *Registry) analyseService(fileData *data.File, packageName string, fileN
 
 	serviceData := data.NewService()
 	serviceData.Name = service.GetName()
-	serviceURLPart := packageName + "." + serviceData.Name
+	//serviceURLPart := packageName + "." + serviceData.Name
 
 	for _, method := range service.Method {
 		// don't support client streaming, will ignore the client streaming method
@@ -96,7 +96,7 @@ func (r *Registry) analyseService(fileData *data.File, packageName string, fileN
 		}
 
 		httpMethod := "POST"
-		url := "/" + serviceURLPart + "/" + method.GetName()
+		var url string //url := "/" + serviceURLPart + "/" + method.GetName()
 		if hasHTTPAnnotation(method) {
 			hm, u := getHTTPMethodPath(method)
 			if hm != "" && u != "" {
@@ -117,10 +117,11 @@ func (r *Registry) analyseService(fileData *data.File, packageName string, fileN
 				Type:       outputTypeFQName,
 				IsExternal: isOutputTypeExternal,
 			},
-			ServerStreaming: method.GetServerStreaming(),
-			ClientStreaming: method.GetClientStreaming(),
-			HTTPMethod:      httpMethod,
-			HTTPRequestBody: body,
+			ServerStreaming:      method.GetServerStreaming(),
+			ClientStreaming:      method.GetClientStreaming(),
+			HTTPMethod:           httpMethod,
+			HTTPRequestBody:      body,
+			APIGatewayPathPrefix: fileData.APIGatewayPathPrefix,
 		}
 
 		fileData.TrackPackageNonScalarType(methodData.Input)

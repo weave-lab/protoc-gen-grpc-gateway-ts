@@ -28,6 +28,8 @@ type File struct {
 	PackageNonScalarType []Type
 	// EnableStylingCheck enables the styling check for the given file
 	EnableStylingCheck bool
+
+	APIGatewayPathPrefix string
 }
 
 // StableDependencies are dependencies in a stable order.
