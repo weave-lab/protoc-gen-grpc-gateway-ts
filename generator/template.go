@@ -35,24 +35,29 @@ const tmpl = `
 export type {{.Name}} = {
 {{- range .Fields}}
   {{- if .IsRequired }}
-	{{fieldName .Name}}: {{tsType .}}
+	{{fieldName .Name}}: {{tsType .}};
   {{- else }}
-	{{fieldName .Name}}?: {{tsType .}}
+	{{fieldName .Name}}?: {{tsType .}};
   {{- end }}
 {{- end}}
 }
 {{end}}{{end}}
 
-{{define "services"}}{{range .}}export class {{.Name}} {
-{{- range .Methods}}  
+{{define "services"}}{{range .}}export const {{.Name}} = {
+{{- range .Methods}}
+{{- if .URL }}
 {{- if .ServerStreaming }}
-  static {{.Name}}(req: {{tsType .Input}}, entityNotifier?: fm.NotifyStreamEntityArrival<{{tsType .Output}}>, initReq?: fm.InitReq): Promise<void> {
+  {{.Name}}(req: {{tsType .Input}}, entityNotifier?: fm.NotifyStreamEntityArrival<{{tsType .Output}}>, initReq?: fm.InitReq): Promise<void> {
     return fm.fetchStreamingRequest<{{tsType .Input}}, {{tsType .Output}}>(` + "`{{renderURL .}}`" + `, entityNotifier, {...initReq, {{buildInitReq .}}})
-  }
+  },
 {{- else }}
-  static {{.Name}}(req: {{tsType .Input}}, initReq?: fm.InitReq): Promise<{{tsType .Output}}> {
-    return fm.fetchReq<{{tsType .Input}}, {{tsType .Output}}>(` + "`{{renderURL .}}`" + `, {...initReq, {{buildInitReq .}}})
-  }
+  {{.Name}}<Input extends {{ tsType .Input }}, Output extends {{ tsType .Output }}>(
+    fn: (url: string, reqInit: RequestInit) => Promise<Output>,
+    req: Input
+  ): Promise<{{ tsType .Output }}> {
+    return fn(` + "`{{renderURL .}}`" + `, { {{buildInitReq .}} })
+  },
+{{- end}}
 {{- end}}
 {{- end}}
 }
@@ -201,17 +206,6 @@ export function replacer(key: any, value: any): any {
   }
 
   return value;
-}
-
-export function fetchReq<I, O>(path: string, init?: InitReq): Promise<O> {
-  const {pathPrefix, ...req} = init || {}
-
-  const url = pathPrefix ? ` + "`${pathPrefix}${path}`" + ` : path
-
-  return fetch(url, req).then(r => r.json().then((body: O) => {
-    if (!r.ok) { throw body; }
-    return body;
-  })) as Promise<O>
 }
 
 // NotifyStreamEntityArrival is a callback that will be called on streaming entity arrival
@@ -492,6 +486,10 @@ func renderURL(r *registry.Registry) func(method data.Method) string {
 			} else {
 				methodURL += "?" + renderURLSearchParamsFn
 			}
+		}
+
+		if !strings.HasPrefix(methodURL, method.APIGatewayPathPrefix) {
+			methodURL = method.APIGatewayPathPrefix + methodURL
 		}
 
 		return methodURL

@@ -18,6 +18,7 @@ func (r *Registry) analyseFile(f *descriptorpb.FileDescriptorProto) (*data.File,
 	parents := make([]string, 0)
 	fileData.Name = fileName
 	fileData.TSFileName = data.GetTSFileName(fileName)
+	fileData.APIGatewayPathPrefix = getAPIGatewayPathPrefix(fileName)
 
 	// analyse enums
 	for _, enum := range f.EnumType {
@@ -45,6 +46,14 @@ func (r *Registry) analyseFile(f *descriptorpb.FileDescriptorProto) (*data.File,
 	return fileData, nil
 }
 
+func getAPIGatewayPathPrefix(fileName string) string {
+	if !strings.HasPrefix(fileName, "schemas") {
+		return ""
+	}
+
+	return strings.TrimPrefix(filepath.Dir(fileName), "schemas")
+}
+
 func (r *Registry) addFetchModuleDependencies(fileData *data.File) error {
 	if !fileData.Services.NeedsFetchModule() {
 		log.Debugf("no services found for %s, skipping fetch module", fileData.Name)
@@ -58,7 +67,6 @@ func (r *Registry) addFetchModuleDependencies(fileData *data.File) error {
 
 	foundAtRoot, alias, err := r.findRootAliasForPath(func(absRoot string) (bool, error) {
 		return strings.HasPrefix(absDir, absRoot), nil
-
 	})
 	if err != nil {
 		return errors.Wrapf(err, "error looking up root alias for fetch module directory %s", r.FetchModuleDirectory)

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -15,7 +15,7 @@ import (
 
 func decodeReq() *plugin.CodeGeneratorRequest {
 	req := &plugin.CodeGeneratorRequest{}
-	data, err := ioutil.ReadAll(os.Stdin)
+	data, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		panic(err)
 	}

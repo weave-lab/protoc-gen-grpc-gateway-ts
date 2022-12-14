@@ -52,6 +52,7 @@ func (r *Registry) analyseMessage(fileData *data.File, packageName, fileName str
 	}
 
 	data := data.NewMessage()
+	data.File = fileData
 	data.Name = packageIdentifier
 	data.FQType = fqName
 

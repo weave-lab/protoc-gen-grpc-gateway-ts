@@ -1,0 +1,54 @@
+name: CI/CD
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+jobs:
+  Pipeline:
+    name: Pipeline
+    runs-on: [ self-hosted, weave-stable ]
+    permissions:
+      contents: read
+      deployments: write
+      statuses: write
+    steps:
+      - name: Checkout Actions Repo
+        uses: actions/checkout@v2
+        with:
+          repository: weave-lab/actions
+          token: ${{secrets.GITHUBACTIONSTOKEN}}
+          path: actions
+          persist-credentials: false
+          fetch-depth: "0"
+      - name: Cleanup
+        uses: ./actions/cleanup/
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          path: src
+          fetch-depth: "0"
+      - name: Prep
+        uses: ./actions/prep/
+      - name: Go Lint
+        uses: ./actions/go/lint/
+      - name: Go Test
+        uses: ./actions/go/test/
+      - name: Go Vet
+        uses: ./actions/go/vet/
+      - name: Go Build
+        uses: ./actions/go/build/
+      - name: Package
+        uses: ./actions/docker/build/
+
+      # post-processing steps
+      - name: On Success
+        if: ${{ success() }}
+        uses: ./actions/on-success
+      - name: On Failure
+        if: ${{ failure() }}
+        uses: ./actions/on-failure
+      - name: On Cancelled
+        if: ${{ cancelled() }}
+        uses: ./actions/on-cancelled

@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/davecgh/go-spew v1.1.1
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/iancoleman/strcase v0.2.0
@@ -17,3 +16,5 @@ require (
 	google.golang.org/protobuf v1.28.1
 	weavelab.xyz/schema-gen-go v0.0.602
 )
+
+replace github.com/grpc-ecosystem/grpc-gateway/v2 => weavelab.xyz/grpc-gateway/v2 v2.5.2

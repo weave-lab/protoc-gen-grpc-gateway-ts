@@ -9,6 +9,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // preflightHandler adds the necessary headers in order to serve
@@ -69,7 +70,7 @@ func main() {
 	mux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 		OrigName: *origName,
 	}))
-	opts := []grpc.DialOption{grpc.WithInsecure()}
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	err = RegisterCounterServiceHandlerFromEndpoint(ctx, mux, "localhost:9000", opts)
 	if err != nil {
 		panic(err)
